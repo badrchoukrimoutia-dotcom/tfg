@@ -1,0 +1,207 @@
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 1.0
+      publish_frequency: 1.0
+      global_frame: map
+      robot_base_frame: base_link
+      use_sim_time: False
+      robot_radius: 0.25
+      resolution: 0.05
+      width: 10
+      height: 10
+      origin_x: -5.0
+      origin_y: -5.0
+      plugins: ["mapa_semantico", "inflation_layer"]
+      mapa_semantico:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_topic: "/mapa_de_costes"
+        subscribe_to_updates: True
+        # --- CLAVE PARA QUE LOS COSTES GRADUALES LLEGUEN AL PLANIFICADOR ---
+        trinary_costmap: False        # Sin esto, la capa solo distingue libre/letal/desconocido
+        track_unknown_space: False    # Tratamos las celdas no marcadas como libres, no como desconocidas
+        use_maximum: False            # No machacamos los costes intermedios con el valor máximo
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.40      # <--- Reducido de 0.55 a 0.35 para dejar espacio a la curva
+        cost_scaling_factor: 2.5   # <--- Reducido para que la penalización no sea tan agresiva cerca de los muebles
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      global_frame: map
+      robot_base_frame: base_link
+      use_sim_time: False
+      rolling_window: true
+      width: 3
+      height: 3
+      resolution: 0.05
+      robot_radius: 0.25
+      plugins: ["mapa_semantico", "inflation_layer"]
+      mapa_semantico:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_topic: "/mapa_de_costes"
+        subscribe_to_updates: True
+        trinary_costmap: False
+        track_unknown_space: False
+        use_maximum: False
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.30
+        cost_scaling_factor: 3.0  
+
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 10.0
+    use_sim_time: False
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_smac_planner::SmacPlannerHybrid"
+      tolerance: 0.5
+      downsample_costmap: false
+      allow_unknown: true
+      
+      # --- LAS TRES VARIABLES MÁGICAS PARA TU SILLA ---
+      minimum_turning_radius: 0.30
+      allow_reverse: true
+      reverse_penalty: 2.0
+
+      # --- MODELO CINEMÁTICO DE BÚSQUEDA ---
+      motion_model_for_search: "REEDS_SHEPP"   # <-- LÍNEA NUEVA
+
+      # --- PENALIZACIONES PARA EVITAR QUE SERPENTEE ---
+      non_straight_penalty: 1.20   # Penaliza ir en curva: prefiere rectas cuando puede
+      change_penalty: 0.0          # Penaliza cambiar de dirección (adelante/atrás). 0 = no penaliza
+      cost_penalty: 2.0            # Cuánto pesa el coste de las celdas frente a la distancia
+
+controller_server:
+  ros__parameters:
+    use_sim_time: False
+    controller_frequency: 20.0
+    controller_plugins: ["FollowPath"]
+    FollowPath:
+      plugin: "nav2_mppi_controller::MPPIController"
+      time_steps: 56
+      model_dt: 0.05
+      batch_size: 2000
+      vx_max: 0.20
+      vx_min: -0.20
+      vy_max: 0.0
+      vy_min: 0.0
+      wz_max: 0.8
+      iteration_count: 1
+      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic", "PreferForwardCritic"]
+      CostCritic:
+        cost_power: 1
+        cost_weight: 3.81
+        critical_cost: 300.0
+        consider_footprint: false
+        collision_cost: 1000000.0
+        near_goal_distance: 1.0
+      GoalCritic:
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 1.4
+      GoalAngleCritic:
+        cost_power: 1
+        cost_weight: 3.0
+        threshold_to_consider: 0.5
+      PathAlignCritic:
+        cost_power: 1
+        cost_weight: 14.0
+        max_path_occupancy_ratio: 0.05
+        trajectory_point_step: 3
+        threshold_to_consider: 0.5
+        offset_from_furthest: 20
+        use_path_orientations: false
+      PathFollowCritic:
+        cost_power: 1
+        cost_weight: 5.0
+        offset_from_furthest: 5
+        threshold_to_consider: 1.4
+      PathAngleCritic:
+        cost_power: 1
+        cost_weight: 2.0
+        offset_from_furthest: 4
+        threshold_to_consider: 0.5
+        max_angle_to_prefer_straight: 0.05
+        forward_preference: true
+      PreferForwardCritic:
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 0.5
+
+behavior_server:
+  ros__parameters:
+    use_sim_time: False
+    behavior_plugins: ["spin", "backup", "wait"]
+    spin:
+      plugin: "nav2_behaviors::Spin"
+    backup:
+      plugin: "nav2_behaviors::BackUp"
+    wait:
+      plugin: "nav2_behaviors::Wait"
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: False
+    global_frame: map
+    robot_base_frame: base_link
+
+waypoint_follower:
+  ros__parameters:
+    use_sim_time: False
+
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: False
+    smoothing_frequency: 20.0
+    scale_velocities: False
+    feedback: "OPEN_LOOP"
+    max_velocity: [0.35, 0.0, 1.0]
+    min_velocity: [-0.10, 0.0, -1.0]
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 1.0
+    max_accel: [2.5, 0.0, 3.2]
+    max_decel: [-2.5, 0.0, -3.2]
+    odom_topic: "odom"
+    odom_duration: 0.1
+    smooth_cmd_in: "cmd_vel_nav"
+    smooth_cmd_out: "cmd_vel"
+collision_monitor:
+  ros__parameters:
+    use_sim_time: False
+    base_frame_id: "base_link"
+    odom_frame_id: "odom"
+    cmd_vel_in_topic: "cmd_vel_smoothed"
+    cmd_vel_out_topic: "cmd_vel_monitor_out"   # <-- CAMBIADO, ya no machaca el real
+    state_topic: "velocity_smoother/transition_event"
+    transform_tolerance: 0.2
+    source_timeout: 1.0
+    base_shift_topic: "slip_vel"
+    stop_pub_timeout: 2.0
+    polygons: ["PolygonStop"]
+    PolygonStop:
+      type: "circle"
+      radius: 0.35
+      action_type: "stop"
+      visualize: True
+      polygon_pub_topic: "polygon_stop"
+    observation_sources: ["dummy_scan"]
+    dummy_scan:
+      type: "scan"
+      topic: "/scan_fantasma"
+lifecycle_manager_navigation:
+  ros__parameters:
+    use_sim_time: False
+    autostart: true
+    bond_timeout: 0.0
+    attempt_respawn_reconnection: false
+    node_names: ['controller_server', 'planner_server', 'behavior_server', 'bt_navigator', 'waypoint_follower', 'velocity_smoother']
+docking_server:
+  ros__parameters:
+    use_sim_time: False
+    dock_plugins: ['simple_charging_dock']
+    simple_charging_dock:
+      plugin: 'opennav_docking::SimpleChargingDock'

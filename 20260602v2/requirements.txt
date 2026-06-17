@@ -1,0 +1,7 @@
+# Dependencias Python externas (instalables con pip)
+numpy==1.26.4
+requests==2.31.0
+matplotlib==3.6.3
+
+# Nota: paquetes como rclpy, nav_msgs, std_msgs, geometry_msgs, tf2_ros y nav2_msgs
+# pertenecen a ROS 2 y se instalan desde la distribución ROS (no desde pip).

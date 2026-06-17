@@ -1,0 +1,51 @@
+{
+    "comentario": "MUEBLES GRANDES",
+    "mesa": 150,
+    "sofa": 180,
+    "armario": 200,
+    "cama": 200,
+    "estanteria": 190,
+    "comoda": 180,
+    "escritorio": 160,
+
+    "comentario_2": "MUEBLES PEQUEÑOS",
+    "silla": 100,
+    "taburete": 90,
+    "sillon": 150,
+    "lampara": 70,
+    "radiador": 180,
+    "planta": 100,
+    "papelera": 80,
+
+    "comentario_3": "ELECTRODOMÉSTICOS",
+    "nevera": 220,
+    "lavadora": 210,
+    "lavavajillas": 210,
+    "horno": 200,
+    "microondas": 150,
+    "television": 150,
+    
+    "comentario_4": "SUELO",
+    "alfombra": 10,
+    "suelo_limpio": 0,
+    "suelo_resbaladizo": 50,
+    "cable": 50,
+
+    "comentario_5": "ESTRUCTURA",
+    "pared": 254,
+    "columna": 254,
+    "puerta_cerrada": 254,
+    "puerta_abierta": 0,
+    "escaleras": 254,
+    "ventana": 254,
+
+    "comentario_6": "OTROS",
+    "persona": 254,
+    "perro": 253,
+    "gato": 253,
+    "bebe": 254,
+    "juguete": 60,
+    "mochila": 70,
+    "zapato": 40
+
+}
