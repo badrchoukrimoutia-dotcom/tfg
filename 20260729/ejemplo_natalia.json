@@ -1,0 +1,102 @@
+{
+    "environment_name": "casa",
+    "rooms": [
+        {
+            "name": "cocina",
+            "position_x": -0.5,
+            "position_y": 0.5,
+            "width": 4,
+            "height": 3,
+            "orientation": 180,
+            "objects": [],
+            "spatial_relation": null
+        },
+        {
+            "name": "continuación del pasillo",
+            "position_x": 2.5,
+            "position_y": 5.5,
+            "width": 1,
+            "height": 3,
+            "orientation": 90,
+            "objects": [],
+            "spatial_relation": null
+        },
+        {
+            "name": "pasillo",
+            "position_x": -0.5,
+            "position_y": 3.5,
+            "width": 4,
+            "height": 2,
+            "orientation": 0,
+            "objects": [],
+            "spatial_relation": {
+                "reference_room": "cocina",
+                "direction": "north",
+                "gap": 0
+            }
+        },
+        {
+            "name": "cuarto de estar",
+            "position_x": 3.5,
+            "position_y": 0.5,
+            "width": 7,
+            "height": 5,
+            "orientation": 0,
+            "objects": [
+                {
+                    "object_id": "sofa_01",
+                    "object_class": "sofa",
+                    "navigable": false,
+                    "position_x": 4.5,
+                    "position_y": 3,
+                    "width": 2,
+                    "height": 1,
+                    "shape": "rectangle",
+                    "orientation": 0
+                }
+            ],
+            "spatial_relation": {
+                "reference_room": "cocina",
+                "direction": "east",
+                "gap": 0
+            }
+        }
+    ],
+    "connections": [
+        {
+            "origin_room": "cocina",
+            "destination_room": "pasillo",
+            "connection_type": "door",
+            "width": 1,
+            "wall_position": "north",
+            "wall_offset": 1
+        },
+        {
+            "origin_room": "cocina",
+            "destination_room": "cuarto de estar",
+            "connection_type": "door",
+            "width": 1,
+            "wall_position": "east",
+            "wall_offset": 1.5
+        },
+        {
+            "origin_room": "pasillo",
+            "destination_room": "cuarto de estar",
+            "connection_type": "door",
+            "width": 1,
+            "wall_position": "east",
+            "wall_offset": 0.5
+        },
+        {
+            "origin_room": "pasillo",
+            "destination_room": "continuación del pasillo",
+            "connection_type": "door",
+            "width": 1,
+            "wall_position": "north",
+            "wall_offset": 3
+        }
+    ],
+    "pending_rooms": [],
+    "pending_connections": [],
+    "blocked_connections": []
+}
